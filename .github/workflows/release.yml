@@ -31,7 +31,6 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
-          registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -49,10 +48,8 @@ jobs:
           if [[ "${{ github.ref_name }}" == *"beta"* ]]; then TAG="beta"; fi
           if [[ "${{ github.ref_name }}" == *"alpha"* ]]; then TAG="alpha"; fi
           
-          # Publish using OIDC (no NPM_TOKEN needed)
+          # Publish using OIDC (no secrets needed)
           pnpm publish --no-git-checks --tag $TAG --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # Fallback if OIDC isn't configured yet, but OIDC is preferred
 
       - name: Publish to GitHub Packages
         run: |
