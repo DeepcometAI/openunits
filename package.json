@@ -47,8 +47,7 @@
     "dev": "tsup --watch",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "tsc --noEmit",
-    "prepublishOnly": "pnpm run build"
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
     "cli-table3": "^0.6.3",

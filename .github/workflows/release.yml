@@ -42,6 +42,15 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Check OIDC Connection
+        run: |
+          if [ -n "$ACTIONS_ID_TOKEN_REQUEST_URL" ]; then
+            echo "✅ OIDC token request URL is available."
+          else
+            echo "❌ OIDC token request URL is MISSING. Ensure permissions are set to 'id-token: write'."
+            exit 1
+          fi
+
       - name: Publish to npm
         run: |
           # Determine tag
@@ -49,9 +58,8 @@ jobs:
           if [[ "${{ github.ref_name }}" == *"beta"* ]]; then TAG="beta"; fi
           if [[ "${{ github.ref_name }}" == *"alpha"* ]]; then TAG="alpha"; fi
           
-          # Publish using OIDC (Trusted Publishing)
-          # Provenance adds extra security for scientific packages
-          npm publish --tag "$TAG" --provenance --access public
+          # Publish to npm using OIDC
+          npm publish --registry=https://registry.npmjs.org/ --tag "$TAG" --provenance --access public
 
       - name: Publish to GitHub Packages
         run: |
