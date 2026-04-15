@@ -13,7 +13,6 @@ import {
   deg2rad,
   rad2deg,
   R_EARTH,
-  MU_EARTH,
   propagate,
 } from '../index.js'
 import type { KeplerianElements, OutputFormat } from '../core/types.js'
