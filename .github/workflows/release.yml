@@ -31,7 +31,6 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
-          registry-url: 'https://registry.npmjs.org'   # ← ADDED
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -42,12 +41,17 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Setup Node for npm publish
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
       - name: Publish to npm
         run: |
-          TAG="${{ github.event.inputs.tag || 'latest' }}"   # ← QUOTED
+          TAG="${{ github.event.inputs.tag || 'latest' }}"
           if [[ "${{ github.ref_name }}" == *"beta"* ]]; then TAG="beta"; fi
           if [[ "${{ github.ref_name }}" == *"alpha"* ]]; then TAG="alpha"; fi
-
           npm publish --tag $TAG --provenance --access public
 
       - name: Publish to GitHub Packages
