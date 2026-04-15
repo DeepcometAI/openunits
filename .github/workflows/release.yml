@@ -17,6 +17,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
 
@@ -30,6 +31,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -42,15 +44,15 @@ jobs:
 
       - name: Publish to npm
         run: |
-          pnpm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
-          # Determine tag from move or input
+          # Determine tag
           TAG=${{ github.event.inputs.tag || 'latest' }}
-          # Check if version contains 'beta' or 'alpha' to auto-tag if via tag push
           if [[ "${{ github.ref_name }}" == *"beta"* ]]; then TAG="beta"; fi
           if [[ "${{ github.ref_name }}" == *"alpha"* ]]; then TAG="alpha"; fi
-          pnpm publish --no-git-checks --tag $TAG
+          
+          # Publish using OIDC (no NPM_TOKEN needed)
+          pnpm publish --no-git-checks --tag $TAG --provenance --access public
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # Fallback if OIDC isn't configured yet, but OIDC is preferred
 
       - name: Publish to GitHub Packages
         run: |
