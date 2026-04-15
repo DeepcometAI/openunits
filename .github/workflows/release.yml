@@ -30,11 +30,11 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: '20'
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Run tests
         run: pnpm test
@@ -42,25 +42,28 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Setup Node for npm publish
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          registry-url: 'https://registry.npmjs.org'
-
       - name: Publish to npm
         run: |
+          # Determine tag
           TAG="${{ github.event.inputs.tag || 'latest' }}"
           if [[ "${{ github.ref_name }}" == *"beta"* ]]; then TAG="beta"; fi
           if [[ "${{ github.ref_name }}" == *"alpha"* ]]; then TAG="alpha"; fi
-          npm publish --tag $TAG --provenance --access public
+          
+          # Publish using OIDC (Trusted Publishing)
+          # Provenance adds extra security for scientific packages
+          npm publish --tag "$TAG" --provenance --access public
 
       - name: Publish to GitHub Packages
         run: |
+          # Setup .npmrc for GPR auth
           pnpm config set //npm.pkg.github.com/:_authToken ${GITHUB_TOKEN}
+          
+          # GPR requires the package to be scoped to the repository owner
+          # We update package.json name ONLY for this step
           if [[ $(node -p "require('./package.json').name") != "@"* ]]; then
             node -e "const pkg = require('./package.json'); pkg.name = '@' + process.env.OWNER.toLowerCase() + '/' + pkg.name; require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2))"
           fi
+          
           pnpm publish --registry https://npm.pkg.github.com/ --no-git-checks
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
