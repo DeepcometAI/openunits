@@ -1,0 +1,24 @@
+# Source code and tests
+src/
+tests/
+
+# Documentation
+docs/
+
+# Configuration files
+tsconfig.json
+tsconfig.node.json
+tsup.config.ts
+vitest.config.ts
+vite.config.ts
+.sixth/
+
+# GitHub metadata
+.github/
+.gitignore
+
+# Logs and temporary files
+*.log
+node_modules/
+pnpm-lock.yaml
+.DS_Store
