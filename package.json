@@ -1,6 +1,6 @@
 {
   "name": "openunits",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A TypeScript orbital mechanics engine for scientific computing. Unit-safe APIs for orbital propagation, trajectory planning, and mission analysis.",
   "author": "DeepcometAI",
   "license": "GPL-3.0",
